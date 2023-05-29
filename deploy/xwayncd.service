@@ -1,0 +1,9 @@
+[Unit]
+Description=xwayncd
+
+[Service]
+ExecStartPre=/bin/sleep 20
+ExecStart=/opt/xwaync
+
+[Install]
+WantedBy=multi-user.target

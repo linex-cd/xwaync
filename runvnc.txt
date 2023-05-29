@@ -1,0 +1,10 @@
+#UINPUT:accel=后面跟缩放比例
+
+#UOS
+scale=(UINPUT:accel=$(qdbus com.deepin.daemon.Appearance /com/deepin/daemon/Appearance com.deepin.daemon.Appearance.GetScaleFactor))
+
+#KYLIN
+scale=UINPUT
+
+
+x11vnc -display :0 -rawfb shm:$(ipcs -m | grep 7c7| awk '{print $2}')@$(xrandr -d :0 | grep '*' | cut -d' ' -f4)x32 -pipeinput $(scale) -cursor none

@@ -1,0 +1,31 @@
+# xwaync
+用于x11vnc的rawfb模式，可以兼容x11和wayland环境。
+默认有30秒的延迟，防止开机启动时，设备黑屏。
+默认每次屏幕采样100毫秒延迟，即为10FPS。
+
+
+## 安装依赖
+```
+sudo apt install libdrm-dev
+```
+
+## 编译
+```
+gcc xwaync.c -o xwaync -ldrm -I/usr/include/drm
+```
+
+## 安装部署
+
+```
+# 必须安装udev规则，否则只有sudo/root才能接收键鼠消息
+bash uinput.sh
+
+# 安装服务，后台同步framebuffer，并开机启动。
+bash installxwaync.sh
+```
+
+## 卸载服务
+```
+bash removexwaync.sh
+```
+
