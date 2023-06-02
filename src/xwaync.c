@@ -37,8 +37,54 @@ int main() {
         // Handle error
         return 1;
     }
-    drmModeCrtc* crtc = drmModeGetCrtc(fd, res->crtcs[0]);  // 获取第一个 CRTC
+    //drmModeCrtc* crtc = drmModeGetCrtc(fd, res->crtcs[0]);  // 获取第一个 CRTC
+	drmModeCrtc* crtc = NULL;
+	printf("found res->count_crtcs=%d\n", res->count_crtcs);
+    for (int i = 0; i < res->count_crtcs; i++) {
+		printf("current crtc id=%d\n", i);
+        crtc = drmModeGetCrtc(fd, res->crtcs[i]);
+        if (crtc->mode_valid && crtc->buffer_id != 0) {
+            // 找到了正在使用的 CRTC
+			
+			
+			// 获取帧缓冲区
+			drmModeFB* fb = drmModeGetFB(fd, crtc->buffer_id);
 
+			printf("fb handle = %d\n", fb->handle);
+
+			// 创建一个用于 DMA-BUF 的文件描述符
+			int dma_buf_fd = 0;
+			struct drm_prime_handle prime_handle = {
+				.handle = fb->handle,
+				.fd = -1,
+				.flags = 0
+			};
+			if (ioctl(fd, DRM_IOCTL_PRIME_HANDLE_TO_FD, &prime_handle) < 0) {
+				puts("ioctl failed");
+				// Handle error
+				//continue;
+			}
+			
+			else{
+				puts("ioctl ok");
+				break;
+				
+			}
+			
+            
+        }
+        drmModeFreeCrtc(crtc);
+        crtc = NULL;
+    }
+	
+    if (!crtc) {
+        // 未找到正在使用的 CRTC
+        // Handle error
+        return 1;
+    }
+	
+	puts("loading framebuffer");
+	
     // 获取帧缓冲区
     drmModeFB* fb = drmModeGetFB(fd, crtc->buffer_id);
 
@@ -64,7 +110,7 @@ int main() {
 	 // 获取 DMA-BUF 的大小
 	off_t size = lseek(dma_buf_fd, 0, SEEK_END);
 	lseek(dma_buf_fd, 0, SEEK_SET);
-    printf("dma_buf_fd %d size=%d\n", dma_buf_fd, size);
+    printf("dma_buf_fd %d size=%ld\n", dma_buf_fd, size);
 
     // 将 DMA-BUF 映射到内存
     void* map = mmap(NULL, size, PROT_READ, MAP_SHARED, dma_buf_fd, 0);

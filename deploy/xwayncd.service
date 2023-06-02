@@ -2,7 +2,6 @@
 Description=xwayncd
 
 [Service]
-ExecStartPre=/bin/sleep 20
 ExecStart=/opt/xwaync
 
 [Install]

@@ -1,10 +1,5 @@
-#UINPUT:accel=后面跟缩放比例
+echo "UINPUT:accel 后面跟鼠标坐标缩放比例"
+echo "--scale 后面跟屏幕缩放比例或者缩放尺寸"
 
-#UOS
-scale=(UINPUT:accel=$(qdbus com.deepin.daemon.Appearance /com/deepin/daemon/Appearance com.deepin.daemon.Appearance.GetScaleFactor))
-
-#KYLIN
-scale=UINPUT
-
-
-x11vnc -display :0 -rawfb shm:$(ipcs -m | grep 7c7| awk '{print $2}')@$(xrandr -d :0 | grep '*' | cut -d' ' -f4)x32 -pipeinput $(scale) -cursor none
+#x11vnc -display :0 -rawfb shm:$(ipcs -m | grep 7c7| awk '{print $2}')@$(xrandr -d :0 | grep '*' | cut -d' ' -f4)x32 -pipeinput UINPUT:accel=1.25 -cursor none
+x11vnc -display :0 -rawfb shm:$(ipcs -m | grep 7c7| awk '{print $2}')@$(xrandr -d :0 | grep '*' | cut -d' ' -f4)x32 -pipeinput UINPUT -cursor none --scale 1280x720
