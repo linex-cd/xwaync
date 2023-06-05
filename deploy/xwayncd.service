@@ -2,7 +2,7 @@
 Description=xwayncd
 
 [Service]
-ExecStart=/opt/xwaync
+ExecStart=/bin/bash /opt/start_xwayncd.sh
 
 [Install]
 WantedBy=multi-user.target
