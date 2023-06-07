@@ -1,5 +1,5 @@
 # xwaync
-用于x11vnc的rawfb模式，可以兼容x11和wayland环境。
+用于x11vnc的rawfb shm模式，可以兼容x11和wayland环境。
 
 本程序使用服务安装后，可以避免x11vnc启动时请求sudo。
 
