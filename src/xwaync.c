@@ -39,6 +39,8 @@ int main() {
     }
     //drmModeCrtc* crtc = drmModeGetCrtc(fd, res->crtcs[0]);  // 获取第一个 CRTC
 	drmModeCrtc* crtc = NULL;
+	int dma_buf_fd = 0;
+	drmModeFB* fb;
 	printf("found res->count_crtcs=%d\n", res->count_crtcs);
     for (int i = 0; i < res->count_crtcs; i++) {
 		printf("current crtc id=%d\n", i);
@@ -48,33 +50,33 @@ int main() {
 			
 			
 			// 获取帧缓冲区
-			drmModeFB* fb = drmModeGetFB(fd, crtc->buffer_id);
+			fb = drmModeGetFB(fd, crtc->buffer_id);
 
 			printf("fb handle = %d\n", fb->handle);
 
 			// 创建一个用于 DMA-BUF 的文件描述符
-			int dma_buf_fd = 0;
+			
 			struct drm_prime_handle prime_handle = {
 				.handle = fb->handle,
 				.fd = -1,
 				.flags = 0
 			};
 			if (ioctl(fd, DRM_IOCTL_PRIME_HANDLE_TO_FD, &prime_handle) < 0) {
-				puts("ioctl failed");
-				// Handle error
-				//continue;
+				drmModeFreeFB(fb);
+				drmModeFreeCrtc(crtc);
+				crtc = NULL;
 			}
 			
 			else{
 				puts("ioctl ok");
+				dma_buf_fd = prime_handle.fd;
 				break;
 				
 			}
 			
             
         }
-        drmModeFreeCrtc(crtc);
-        crtc = NULL;
+        
     }
 	
     if (!crtc) {
@@ -82,31 +84,14 @@ int main() {
         // Handle error
         return 1;
     }
-	
-	puts("loading framebuffer");
-	
-    // 获取帧缓冲区
-    drmModeFB* fb = drmModeGetFB(fd, crtc->buffer_id);
+	if (!dma_buf_fd) {
+		rfbLogEnable(1);
+		rfbLog("open CRTC err, please turn on your display. ");
+		puts 1;
+	}
 
-    printf("fb handle = %d\n", fb->handle);
-
-    // 创建一个用于 DMA-BUF 的文件描述符
-    int dma_buf_fd = 0;
-    struct drm_prime_handle prime_handle = {
-        .handle = fb->handle,
-        .fd = -1,
-        .flags = 0
-    };
-    if (ioctl(fd, DRM_IOCTL_PRIME_HANDLE_TO_FD, &prime_handle) < 0) {
-        perror("ioctl failed");
-        // Handle error
-        return 1;
-    }
-    printf("fd = %d, dma_buf_fd  = %d \n", prime_handle.fd, dma_buf_fd);
-    // dma_buf_fd 现在可以用于访问帧缓冲区的数据
-    dma_buf_fd = prime_handle.fd;
-    // ...
 	
+
 	 // 获取 DMA-BUF 的大小
 	off_t size = lseek(dma_buf_fd, 0, SEEK_END);
 	lseek(dma_buf_fd, 0, SEEK_SET);
@@ -151,7 +136,7 @@ int main() {
     }
 
 	
-	
+	printf("SYNC to SHared Memory. shm address: %p\n", shm);
 	
 	while(1)
 	{
@@ -165,7 +150,7 @@ int main() {
 
 		cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
     
-		printf("SYNC to SHared Memory took %f seconds to execute\n", cpu_time_used);
+		//printf("SYNC to SHared Memory took %f seconds to execute\n", cpu_time_used);
 		
 		struct timespec req = {0};
 		req.tv_sec = 0; // 0 second
@@ -188,7 +173,7 @@ int main() {
 
     // 清理
     close(dma_buf_fd);
-    drmModeFreeFB(fb);
+    
     drmModeFreeCrtc(crtc);
     drmModeFreeResources(res);
     close(fd);
