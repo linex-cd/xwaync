@@ -85,11 +85,11 @@ int main() {
         return 1;
     }
 	if (!dma_buf_fd) {
-		rfbLogEnable(1);
-		rfbLog("open CRTC err, please turn on your display. ");
-		puts 1;
+		puts("open CRTC err, please turn on your display. ");
+		return 1;
 	}
-
+	
+	puts("loading framebuffer");
 	
 
 	 // 获取 DMA-BUF 的大小
@@ -136,7 +136,7 @@ int main() {
     }
 
 	
-	printf("SYNC to SHared Memory. shm address: %p\n", shm);
+	printf("SYNC to SHared Memory. shm key: %d, shmid: %d, shm address: %p\n", key,shmid, shm);
 	
 	while(1)
 	{
