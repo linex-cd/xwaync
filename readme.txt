@@ -31,6 +31,7 @@ bash removexwaync.sh
 
 
 ## 制作安装包
+默认arm64架构，可以在package/info.txt修改
 ```
 sudo bash makedeb.sh
 ```
