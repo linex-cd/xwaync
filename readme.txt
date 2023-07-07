@@ -29,3 +29,8 @@ bash installxwaync.sh
 bash removexwaync.sh
 ```
 
+
+## 制作安装包
+```
+sudo bash makedeb.sh
+```
