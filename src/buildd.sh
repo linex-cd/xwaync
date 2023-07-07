@@ -1,1 +1,0 @@
-gcc xwayncd.c -o xwayncd -ldrm -I/usr/include/drm/

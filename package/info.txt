@@ -1,0 +1,7 @@
+Package: xwaync
+Version: 1.0-1
+Section: base
+Priority: optional
+Architecture: arm64
+Maintainer: linex-cd <linex.cd@qq.com>
+Description: xwaync for x11vnc
